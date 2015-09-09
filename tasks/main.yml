@@ -1,0 +1,13 @@
+---
+# tasks file for redhat_timezone
+
+- name: update /etc/sysconfig/clock
+  sudo: yes
+  sudo_user: root
+  lineinfile: regexp="^ZONE=" line="ZONE={{timezone | default("America/New_York")}}" dest=/etc/sysconfig/clock
+
+- name: update /etc/localtime
+  sudo: yes
+  sudo_user: root
+  file: state=link force=yes dest=/etc/localtime src=/usr/share/zoneinfo/{{timezone | default("America/New_York")}}
+
