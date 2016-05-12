@@ -2,12 +2,19 @@
 # tasks file for redhat_timezone
 
 - name: update /etc/sysconfig/clock
-  sudo: yes
-  sudo_user: root
+  become: yes
+  become_user: root
   lineinfile: regexp="^ZONE=" line="ZONE={{timezone | default("America/New_York")}}" dest=/etc/sysconfig/clock
+  when: ansible_distribution_major_version < 7
 
 - name: update /etc/localtime
-  sudo: yes
-  sudo_user: root
+  become: yes
+  become_user: root
   file: state=link force=yes dest=/etc/localtime src=/usr/share/zoneinfo/{{timezone | default("America/New_York")}}
+  when: ansible_distribution_major_version == "6"
 
+- name: update timezone using timedatectl
+  become: yes
+  become_user: root
+  command: timedatectl set-timezone {{timezone|default("America/New_York")}}
+  when: ansible_distribution_major_version == "7"
